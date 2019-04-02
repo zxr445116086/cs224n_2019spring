@@ -1,0 +1,113 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+
+\title{cs224n 2019 Assignment 1}
+\author{Zhou Xiaorui - jarvan000@gmail.com}
+\date{March 20, 2019}
+
+\begin{document}
+
+\maketitle
+\textbf{Notice: The answer is done by myself, and I'm not a Stanford student.}
+\\
+(a) only the \textit{o}'th position of \textbf{\textit{y}} is not zero, so the sum can be reduced to only one part:
+\begin{equation}
+    -\sum_{w \in {\rm Vocab}} {y_w \log(\hat{y}_w)} = - y_o \log(\hat{y}_o) = - \log(\hat{y}_o)
+\end{equation}
+\\
+(b) since
+\begin{equation}
+\begin{aligned}
+    \textbf{\textit{J}}_{\rm naive-softmax}(\textbf{\textit{v}}_c, o, \textbf{\textit{U}}) &= -\log \frac {\exp (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c)} {\sum_{w \in {\rm Vocab}} {\exp (\textbf{\textit{u}}_w^\top \textbf{\textit{v}}_c)}} \\
+    &= - \textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c + \log \sum_{w \in {\rm Vocab}} {\exp (\textbf{\textit{u}}_w^\top \textbf{\textit{v}}_c)}
+\end{aligned}
+\end{equation}
+so we have
+\begin{equation*}
+\begin{aligned}
+    \frac {\partial \textbf{\textit{J}}} {\partial \textbf{\textit{v}}_c} &= -\textbf{\textit{u}}_o + {\frac {\sum_{x \in {\rm Vocab}} {\exp (\textbf{\textit{u}}_x^\top \textbf{\textit{v}}_c) \textbf{\textit{u}}_x}} {\sum_{w \in {\rm Vocab}} {\exp (\textbf{\textit{u}}_w^\top \textbf{\textit{v}}_c)}}} \\
+    &= -\textbf{\textit{u}}_o + \sum_{x \in {\rm Vocab}} {\frac {\exp (\textbf{\textit{u}}_x^\top \textbf{\textit{v}}_c)} {\sum_{w \in {\rm Vocab}} {\exp (\textbf{\textit{u}}_w^\top \textbf{\textit{v}}_c)}} \textbf{\textit{u}}_x} \\
+    &= -\textbf{\textit{u}}_o + \sum_{x \in {\rm Vocab}} {\hat{y}_x \textbf{\textit{u}}_x} \\
+    &= \textbf{\textit{U}} (\hat{y} - y)
+\end{aligned}
+\end{equation*}
+According to the result, we need to compute the matrix multiplication over the whole vocabulary, which may contain millions of words, and that is time-consuming and unnecessary.
+\\
+\\
+(c) when \( \textbf{\textit{u}}_w = \textbf{\textit{u}}_o \)
+\begin{equation*}
+\begin{aligned}
+    \frac {\partial \textbf{\textit{J}}} {\partial \textbf{\textit{u}}_w} &= \frac {\partial \textbf{\textit{J}}} {\partial \textbf{\textit{u}}_o} \\
+    &= - \textbf{\textit{v}}_c + {\frac {\exp (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c)} {\sum_{w \in {\rm Vocab}} {\exp (\textbf{\textit{u}}_w^\top \textbf{\textit{v}}_c)}} \textbf{\textit{v}}_c} \\
+    &= - \textbf{\textit{v}}_c + \hat{y}_o \textbf{\textit{v}}_c
+\end{aligned}
+\end{equation*}
+when \( \textbf{\textit{u}}_w \neq \textbf{\textit{u}}_o \)
+\begin{equation*}
+\begin{aligned}
+    \frac {\partial \textbf{\textit{J}}} {\partial \textbf{\textit{u}}_w} &= \frac {\exp (\textbf{\textit{u}}_w^\top \textbf{\textit{v}}_c)} {\sum_{x \in {\rm Vocab}} {\exp (\textbf{\textit{u}}_x^\top \textbf{\textit{v}}_c)}} \textbf{\textit{v}}_c \\
+    &= \hat{y}_w \textbf{\textit{v}}_c
+\end{aligned}
+\end{equation*}
+so from above two equation, we can get
+\begin{equation*}
+    \frac {\partial \textbf{\textit{J}}} {\partial \textbf{\textit{U}}} = \textbf{\textit{v}}_c (\hat{y} - y)^\top
+\end{equation*}
+\\
+(d) very basic partial derivative computation.
+\begin{equation*}
+\begin{aligned}
+    \frac {d\sigma (\textbf{\textit{x}})} {dx} &= \frac {e^{-x}} {(1 + e^{-x})^2} \\
+    &= \sigma (\textbf{\textit{x}}) (1 - \sigma (\textbf{\textit{x}}))
+\end{aligned}
+\end{equation*}
+\\
+(e) basic partial derivative computation, using chain rule.
+\begin{equation*}
+\begin{aligned}
+    \frac {\partial \textbf{\textit{J}}} {\partial \textbf{\textit{v}}_c} &= - \frac {\sigma (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c) (1 - \sigma (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c)) \textbf{\textit{u}}_o} {\sigma (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c)}  - \sum_{k=1}^{K} \frac{(\sigma (-\textbf{\textit{u}}_k^\top \textbf{\textit{v}}_c)) (1 - (\sigma (-\textbf{\textit{u}}_k^\top \textbf{\textit{v}}_c))) (-\textbf{\textit{u}}_k)}{\sigma (-\textbf{\textit{u}}_k^\top \textbf{\textit{v}}_c)}  \\
+    &= - (1 - \sigma (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c)) \textbf{\textit{u}}_o - \sum_{k=1}^{K} (1 - (\sigma (-\textbf{\textit{u}}_k^\top \textbf{\textit{v}}_c))) (-\textbf{\textit{u}}_k) \\
+    &= - (1 - \sigma (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c)) \textbf{\textit{u}}_o + \sum_{k=1}^{K} (1 - (\sigma (-\textbf{\textit{u}}_k^\top \textbf{\textit{v}}_c))) \textbf{\textit{u}}_k
+\end{aligned}
+\end{equation*}
+for \(\textbf{\textit{u}}_o \) and \(\textbf{\textit{u}}_w\), we apply the same technique.
+\begin{equation*}
+\begin{aligned}
+    \frac {\partial \textbf{\textit{J}}} {\partial \textbf{\textit{u}}_o} &= - \frac {\sigma (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c) (1 - \sigma (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c)) \textbf{\textit{v}}_c} {\sigma (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c)} \\
+    &= -(1 - \sigma (\textbf{\textit{u}}_o^\top \textbf{\textit{v}}_c)) \textbf{\textit{v}}_c
+\end{aligned}
+\end{equation*}
+
+\begin{equation*}
+\begin{aligned}
+    \frac {\partial \textbf{\textit{J}}} {\partial \textbf{\textit{u}}_k} &= - \frac{(\sigma (-\textbf{\textit{u}}_k^\top \textbf{\textit{v}}_c)) (1 - (\sigma (-\textbf{\textit{u}}_k^\top \textbf{\textit{v}}_c))) (-\textbf{\textit{v}}_c)}{\sigma (-\textbf{\textit{u}}_k^\top \textbf{\textit{v}}_c)} \\
+    &= (1 - (\sigma (-\textbf{\textit{u}}_k^\top \textbf{\textit{v}}_c))) (-\textbf{\textit{v}}_c)
+\end{aligned}
+\end{equation*}
+using Negative Sampling loss, we only need to compute K+1 parameter, which is much more efficient than if we need to compute over the whole vocabulary.
+\\
+\\
+(f) just add the loss of every context word, we can get the answer.
+\begin{equation*}
+\begin{aligned}
+    \frac {\partial \textbf{\textit{J}}_{\rm skip-gram} (\textbf{\textit{v}}_c , w_{t-m},...,w_{t+m},\textbf{\textit{U}})} {\partial \textbf{\textit{U}}} &= \sum_{\substack{-m \leq j \leq m \\ {j \neq 0}}}  \frac {\partial \textbf{\textit{J}} (\textbf{\textit{v}}_c , w_{t+j},\textbf{\textit{U}})} {\partial \textbf{\textit{U}}}
+\end{aligned}
+\end{equation*}
+
+\begin{equation*}
+\begin{aligned}
+    \frac {\partial \textbf{\textit{J}}_{\rm skip-gram} (\textbf{\textit{v}}_c , w_{t-m},...,w_{t+m},\textbf{\textit{U}})} {\partial \textbf{\textit{v}}_c} &= \sum_{\substack{-m \leq j \leq m \\ {j \neq 0}}}  \frac {\partial \textbf{\textit{J}} (\textbf{\textit{v}}_c , w_{t+j},\textbf{\textit{U}})} {\partial \textbf{\textit{v}}_c}
+\end{aligned}
+\end{equation*}
+
+\begin{equation*}
+\begin{aligned}
+    \frac {\partial \textbf{\textit{J}}_{\rm skip-gram} (\textbf{\textit{v}}_c , w_{t-m},...,w_{t+m},\textbf{\textit{U}})} {\partial \textbf{\textit{v}}_w} &= 0 \text{, for } w \neq c
+\end{aligned}
+\end{equation*}
+\\
+
+\text{Useful reference: http://www.amendgit.com/post/cs224n/cs224n-assignment-1/}
+
+\end{document}

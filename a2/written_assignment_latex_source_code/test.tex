@@ -1,0 +1,72 @@
+\documentclass{article}
+\usepackage[left=2cm, right=2cm, top=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\DeclareMathOperator{\E}{\mathbb{E}}
+
+\title{cs224n 2019 Assignment 3}
+\author{Zhou Xiaorui - jarvan000@gmail.com}
+\date{March 22, 2019}
+
+\begin{document}
+
+\maketitle
+\textbf{Notice: The answer is done by myself, and I'm not a Stanford student.}
+\\
+(a)
+\\
+i. with \(\beta_1\) be set to 0.9, \textbf{m} will keep most of the previous step value, which will also keep most of its previous step value, this mechanism keeps \textbf{m} from varying too much.
+\\
+\\
+ii. RMSProp divide every gradient by its magnitude, that means larger gradient will divide a big number, and smaller gradient will divide a small number. So we get near the same magnitude of gradient no matter how big or small that particular gradient is. It helps to handle the saddle points problem.
+\\
+\\
+(b)
+\\
+i. since \( \textbf{h}_{\textit{drop}} = \gamma \textbf{d} \circ \textbf{h} \) , we can get following equation (notice that \(\textit{p}_{\rm drop}\) is the drop probability):
+\\
+\[ \E_{\textit{p}_{\rm drop}} [\textbf{h}_{\textit{drop}}]_{\textit{i}} = \E_{\textit{p}_{\rm drop}} [\gamma \textbf{d} \circ \textbf{h}]_{\textit{i}} = \gamma (1 - \textit{p}_{\rm drop}) \E_{\textit{p}_{\rm drop}} [\textbf{h}]_{\textit{i}} = \textit{h}_{\textit{i}} \]
+\\
+so the value of \(\gamma\) is 
+\\
+\[ \gamma = \frac {1} {1- \textit{p}_{\rm drop}} \]
+\\
+ii. During training process, we need to apply dropout to train a robust model, but when the training is finished, we need the full network to get a good prediction. So during evaluation, we do not apply dropout.
+\\
+\\
+\textbf{2. Neural Transition-Based Dependency Parsing}
+\\
+(a) see table below
+\begin{center}
+\begin{tabular}{ c|c|c|c }
+ Stack & Buffer & New dependency & Transition \\
+ \hline
+ [ROOT] & [I, parsed, this, sentence, correctly] & & Initial Configuration \\
+ \hline
+ [ROOT, I] & [parsed, this, sentence, correctly] & & SHIFT \\
+ \hline
+ [ROOT, I, parsed] & [this, sentence, correctly] & & SHIFT \\
+ \hline
+ [ROOT, parsed] & [this, sentence, correctly] & parsed \(\rightarrow\) I & LEFT-ARC \\
+ \hline
+ [ROOT, parsed, this] & [sentence, correctly] & & SHIFT \\
+ \hline
+ [ROOT, parsed, this, sentence] & [correctly] & & SHIFT \\
+ \hline
+ [ROOT, parsed, sentence] & [correctly] & sentence \(\rightarrow\) this & LEFT-ARC \\
+ \hline
+ [ROOT, parsed] & [correctly] & parsed \(\rightarrow\) sentence & RIGHT-ARC \\
+ \hline
+ [ROOT, parsed, correctly] & [ ] & & SHIFT \\
+ \hline
+ [ROOT, parsed] & [ ] & parsed \(\rightarrow\) correctly & RIGHT-ARC \\
+ \hline
+ [ROOT] & [ ] & ROOT \(\rightarrow\) parsed & RIGHT-ARC
+\end{tabular}
+\end{center}
+(b) for a sentence with n words, every word need to go through \textbf{SHIFT} process and \textbf{ARC} process, so there will be \textbf{\textit{2n}} steps needed.
+\\
+\\
+(c) 
+
+\end{document}
